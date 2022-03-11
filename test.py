@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from requests_oauthlib import OAuth2Session
 import requests
 import time
+from refresh import refresh_token
 # from telegram.ext import Updater
 
 
@@ -34,30 +35,39 @@ bot.send_message(text='Please authorize via following link:\n{}'.format(url), ch
 
 oauth = OAuth2Session(client_id=uid, redirect_uri="http://localhost")
 
-time.sleep(20)
+time.sleep(15)
 msg = bot.get_updates()[-1]
 payload = msg.message.text.split()[1]
 print('|', payload, '|')
 
 # try:
 token = oauth.fetch_token(token_url='https://api.intra.42.fr/oauth/token', code=payload, client_secret=secret)
+
+print('type:', type(token), '\n')
+# with open('token.txt', '+w') as f:
+# 	safe = sys.stdout
+# 	sys.stdout = f
 print(token)
-# print('where')
-# while (1):
+	# sys.stdout = safe
+
+refresh_token(token, uid, secret)
+print(token)
+
 response = requests.get("https://api.intra.42.fr/oauth/token/info", token)
 user = response.json()
 print(user)
 
-myobj = {
-	'grant_type': 'refresh_token',
-	'&refresh_token': token['refresh_token'],
-	'&client_id' : uid,
-	'&client_secret' : secret
-}
+# myobj = {
+# 	'client_id' : uid,
+# 	'client_secret' : secret,
+# 	'refresh_token': token['refresh_token'],
+# 	'grant_type': 'refresh_token'
+# }
+# print(myobj)
 
 #https://api.intra.42.fr/oauth/token
-response = requests.post(url='https://api.intra.42.fr/oauth/token',data=myobj)
-print(response)
+# response = requests.post(url='https://api.intra.42.fr/oauth/token',data=myobj)
+# print(response)
 # except:
 	# print('failed')
 # user = updates[-1].message.from_user.id

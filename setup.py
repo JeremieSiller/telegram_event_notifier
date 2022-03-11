@@ -1,6 +1,8 @@
+import imp
 import os
 from dotenv import load_dotenv
 from requests_oauthlib import OAuth2Session
+import sqlite3
 
 #iniate variables
 
@@ -29,3 +31,13 @@ try:
 	oauth = OAuth2Session(client_id=uid, redirect_uri=redirect_uri)
 except:
 	print("Error\nCould not create oauth-session, probably because the client id or the secret is wrong")
+	exit(1)
+
+try:
+	con = sqlite3.connect('tokens.db')
+	cur = con.cursor()
+	cur.execute('''CREATE TABLE tokens(access_token text, token_type text, expires_in int, refresh_token text, created_at int, expires_at double, chat_id int)''')
+	con.commit()
+	con.close()
+except:
+	print("Error\nCould not create token-databse")

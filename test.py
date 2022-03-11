@@ -1,6 +1,7 @@
 from setup import telegram_token
 from setup import uid
 from setup import secret
+from setup import con
 from telegram.ext import Updater
 from telegram.ext import CommandHandler
 from telegram.ext import MessageHandler, Filters

@@ -2,6 +2,8 @@ import os
 from dotenv import load_dotenv
 from requests_oauthlib import OAuth2Session
 
+#iniate variables
+
 load_dotenv()
 try:
 	telegram_token = os.environ['TOKEN']
@@ -23,4 +25,7 @@ except:
 
 redirect_uri = "http://1-E-4.42heilbronn.de"
 
-oauth = OAuth2Session(client_id=uid, redirect_uri=redirect_uri)
+try:
+	oauth = OAuth2Session(client_id=uid, redirect_uri=redirect_uri)
+except:
+	print("Error\nCould not create oauth-session, probably because the client id or the secret is wrong")

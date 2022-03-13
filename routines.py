@@ -5,30 +5,41 @@ from telegram.ext import CallbackContext
 from telegram.ext import CommandHandler
 import requests
 from authenticate import authenticate
-import sqlite3
-import databse
+import database
+import consts as c
 
-url = 'https://api.intra.42.fr/oauth/authorize?client_id=8187b1956521b380a86c2e054f4f10e80e3f737f6474eda1480f00bdc4fa8c05&redirect_uri=http%3A%2F%2F1-E-4.42heilbronn.de&response_type=code'
 token = {}
 
 def start(update: Update, context: CallbackContext):
+	global token 
 	if (len(context.args) == 1):
 		msg = "your code is: {}".format(context.args[0])
-		global token 
-		t = authenticate(context.args[0])
-		if (t == -1):
-			msg = "Error authentication failed, please try again later"
+		tmp = database.find_token(update.effective_chat.id)
+		print('found')
+		if tmp == -1:
+			print('not found')
+			t = authenticate(context.args[0])
+			database.insert_token(t, update.effective_chat.id)
+			if (t == -1):
+				msg = "Error authentication failed, please try again later"
+			else:
+				up = {update.effective_chat.id : t}
+				token.update(up)
+				# print('old token: ', t)
+				# print('chat:', update.effective_chat.id)
+				# print('new token :', database.find_token(update.effective_chat.id))
+				# token[update.effective_chat.id] = database.find_token(update.effective_chat.id)
+				# print(type(token[update.effective_chat.id]))
 		else:
-			up = {update.effective_chat.id : t}
-			token.update(up)
-			print('old token: ', t)
-			# print('chat:', update.effective_chat.id)
-			databse.insert_token(t, update.effective_chat.id)
-			print('new token :', databse.find_token(update.effective_chat.id))
-			token[update.effective_chat.id] = databse.find_token(update.effective_chat.id)
-			print(type(token[update.effective_chat.id]))
+			token[update.effective_chat.id] = tmp
 	else:
-		msg = "Welcome to the 42 event notifier.\n To get started authenticate your intra with the following link and press the start button when you return: {}".format(url)
+		tmp = database.find_token(update.effective_chat.id)
+		if tmp == -1:
+			print('LOL')
+			msg = "Welcome to the 42 event notifier.\n To get started authenticate your intra with the following link and press the start button when you return: {}".format(c.auth_link)
+		else:
+			msg = "You are already authenticated"
+			token[update.effective_chat.id] = tmp
 	context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 def unkown(update: Update, context: CallbackContext):

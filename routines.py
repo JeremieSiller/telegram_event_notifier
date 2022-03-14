@@ -1,4 +1,5 @@
 from distutils.log import fatal
+from sqlite3 import Row
 from turtle import update
 from xml.dom.minidom import Document
 from telegram import Update
@@ -13,6 +14,7 @@ import helper
 import dateutil.parser as dp
 import time
 import event_inspector
+import notification_db as notifydb
 
 def not_authenticated(context, chat_id):
 	msg = "You are not authenticated, please run /start to get started"
@@ -100,6 +102,41 @@ def events(update: Update, context: CallbackContext):
 	else:
 		context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
+def delete_notification(cur, args, chat_id):
+	if (len(args) != 2):
+		return "/notifications can only be exectued without or with exactly two arguements" 
+	try:
+		id = int(args[0])
+	except:
+		return "Error: {} is not a valid event_id".format(args[0])
+	try:
+		minutes = int(args[1])
+	except:
+		return "Error: {} is not a valid integer".format(args[1])
+	cur.execute('''SELECT * FROM notifications WHERE chat_id=? AND seconds_till=? AND event_id=?''', (chat_id, minutes, id))
+	rows = cur.fetchall()
+	if len(rows) == 0:
+		return "Error: there is no notification registered for id: {} and minutes: {}".format(id, minutes)
+	cur.execute('''DELETE FROM notifications WHERE chat_id=? AND seconds_till=? AND event_id=?''', (chat_id, minutes, id))
+	return "Successfully deleted the notification\n"
+
 def notifications(update: Update, context: CallbackContext):
-	msg = "Still working on this :)"
+	msg = "These are all your active notifications:\n\n"
+	con = notifydb.open_database()
+	cur = con.cursor()
+	cur.execute('''SELECT * FROM notifications WHERE chat_id=?''',(update.effective_chat.id, ))
+	rows = cur.fetchall()
+	if (len(rows) == 0):
+		msg = "You do not have any active notifications\nrun /help for a list of commands"
+	else:
+		if len(context.args) == 0:
+			for x in rows:
+				string = "Event {name} with the id: {id} will notify you {minutes} minutes before the start of the event\n"\
+					.format(name=x[4], id=x[2], minutes=int(x[5]))
+				msg += string
+			msg += "\nif you want to delete a notification run /notifications EVENT_ID MINUTES\n"
+		else:
+			msg = delete_notification(cur, context.args, update.effective_chat.id)
+			con.commit()
 	context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+	notifydb.close_database(con)

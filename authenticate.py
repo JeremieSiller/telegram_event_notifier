@@ -22,7 +22,7 @@ def	refresh_token(old_token):
 	}
 	response = requests.post(url=c.token_url, data=data)
 	if (response.status_code != 200):
-		return 1
+		return -1
 	old_token['access_token'] = response.json()['access_token']
 	old_token['expires_in'] = response.json()['expires_in']
 	old_token['refresh_token'] = response.json()['refresh_token']

@@ -99,3 +99,7 @@ def events(update: Update, context: CallbackContext):
 		context.bot.send_document(chat_id=update.effective_chat.id, document=msg.to_ical(), filename="event.ics")
 	else:
 		context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+
+def notifications(update: Update, context: CallbackContext):
+	msg = "Still working on this :)"
+	context.bot.send_message(chat_id=update.effective_chat.id, text=msg)

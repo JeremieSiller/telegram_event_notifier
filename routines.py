@@ -1,12 +1,12 @@
 from distutils.log import fatal
-from urllib import response
 from telegram import Update
 from telegram.ext import CallbackContext
 from telegram.ext import CommandHandler
 import requests
-from authenticate import authenticate
+from authenticate import authenticate, refresh_token
 import database
 import consts as c
+import helper
 
 token = {}
 
@@ -14,32 +14,26 @@ def start(update: Update, context: CallbackContext):
 	global token 
 	if (len(context.args) == 1):
 		msg = "your code is: {}".format(context.args[0])
-		tmp = database.find_token(update.effective_chat.id)
-		print('found')
-		if tmp == -1:
-			print('not found')
-			t = authenticate(context.args[0])
-			database.insert_token(t, update.effective_chat.id)
-			if (t == -1):
-				msg = "Error authentication failed, please try again later"
-			else:
-				up = {update.effective_chat.id : t}
-				token.update(up)
-				# print('old token: ', t)
-				# print('chat:', update.effective_chat.id)
-				# print('new token :', database.find_token(update.effective_chat.id))
-				# token[update.effective_chat.id] = database.find_token(update.effective_chat.id)
-				# print(type(token[update.effective_chat.id]))
+		tmp = authenticate(context.args[0])
+		if (tmp == -1):
+			msg = "Error authentication failed, please try again later"
 		else:
+			database.insert_token(tmp, update.effective_chat.id)
 			token[update.effective_chat.id] = tmp
 	else:
 		tmp = database.find_token(update.effective_chat.id)
 		if tmp == -1:
-			print('LOL')
-			msg = "Welcome to the 42 event notifier.\n To get started authenticate your intra with the following link and press the start button when you return: {}".format(c.auth_link)
+			msg = "Welcome to the 42 event notifier.\nTo get started authenticate your intra with the following link and press the start button when you return: {}".format(c.auth_link)
 		else:
-			msg = "You are already authenticated"
-			token[update.effective_chat.id] = tmp
+			if helper.is_token_expired(tmp) == 1:
+				msg = "Your token expired, please authenticate again by clicking following link:\n{}".format(c.auth_link)
+			else:
+				if refresh_token(tmp) == 1:
+					msg = "Your token expired, please authenticate again by clicking following link:\n{}".format(c.auth_link)
+				else:
+					database.insert_token(tmp, update.effective_chat.id)
+					msg = "You are already authenticated\ntype /help to get a list of commands\n"
+					token[update.effective_chat.id] = tmp
 	context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 def unkown(update: Update, context: CallbackContext):

@@ -2,6 +2,7 @@ import requests
 from requests_oauthlib import OAuth2Session
 import consts as c
 
+#creates token
 def authenticate(code):
 	try:
 		token = c.oauth.fetch_token(token_url=c.token_url, code=code, client_secret=c.secret)
@@ -12,10 +13,10 @@ def authenticate(code):
 #takes an old_token and refreshes it to create a new one should be called at least every 2 hours
 #maybe there is a cleaner way to solve this but the pyhton oauthlib library is really bad documented
 #returns 1 on error and 0 on success
-def	refresh_token(old_token, uid, secret):
+def	refresh_token(old_token):
 	data = {
-		'client_id': uid,
-		'client_secret': secret,
+		'client_id': c.uid,
+		'client_secret': c.secret,
 		'refresh_token': old_token['refresh_token'],
 		'grant_type': 'refresh_token',
 	}

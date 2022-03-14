@@ -54,7 +54,7 @@ except:
 try:
 	con = sqlite3.connect('tokens.db')
 	cur = con.cursor()
-	cur.execute('''CREATE TABLE IF NOT EXISTS tokens(access_token text, token_type text, expires_in int, refresh_token text, created_at int, expires_at double, chat_id int)''')
+	cur.execute('''CREATE TABLE IF NOT EXISTS tokens(access_token text, token_type text, expires_in int, refresh_token text, created_at int, expires_at double, chat_id int PRIMARY KEY)''')
 	con.commit()
 except:
 	print("Error\nCould not create token-database")

@@ -9,6 +9,7 @@ def run():
 	#initate telegram udater
 	updater = Updater(token=c.telegram_token, use_context=True)
 	dispatcher = updater.dispatcher
+	jobs = updater.job_queue
 
 	#activate logging
 	logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)

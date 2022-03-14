@@ -1,10 +1,12 @@
+from urllib import response
 import consts as c
 import requests
 import dateutil.parser as dp
 import datetime
 from icalendar import Calendar, Event
-import pytz
 from dateutil import parser
+import notification_db as notifydb
+import pytz
 
 #not correct when event is for more than a day
 def caluclate_duration(begins_at, ends_at):
@@ -22,7 +24,32 @@ def getdatetime(datestring):
 	return parser.parse(datestring)
 
 
-def event_args(args, tok):
+def notify(args, tok, chat_id):
+	num_string = args[1][1:]
+	try:
+		num = int(num_string)
+	except:
+		return "Error {} is not a valid integer".format(num_string)
+	if num <= 1 or num > 4320:
+		return "Error {} is not an integer between 1 and 4320".format(num_string)
+	response = requests.get("https://api.intra.42.fr/v2/events/{}".format(args[0]), tok)
+	if response.status_code != 200:
+		return "Sorry could not request the event\nthis could be because you are trying to access an event you are not authorized to or because\the api is down. If none of that is the case, please report the issue to jsiller\n"
+	json = response.json()
+	msg = notifydb.check_entrys(chat_id=chat_id, event_id=args[0], num=num)
+	if msg != 0:
+		return msg
+	utc = pytz.UTC
+	notify_time = getdatetime(json['begin_at']) - datetime.timedelta(seconds=num + 600)
+	now_time = datetime.datetime.now()
+	now_time = utc.localize(now_time)
+	if (notify_time < now_time):
+		return "Sorry I'm not a time machine"
+	notifydb.insert_notification(chat_id, notify_time, json['id'], getdatetime(json['begin_at']), json['name'], num)
+	return "successfully created notfication"
+	
+
+def event_args(args, tok, chat_id):
 	if len(args) == 1:
 		response = requests.get("https://api.intra.42.fr/v2/events/{}".format(args[0]), tok)
 		if response.status_code != 200:
@@ -74,7 +101,7 @@ def event_args(args, tok):
 			cal.add_component(event)
 			return cal
 		elif args[1][0] == 'N':
-			msg = "Notifications are not implemented yet\n"
+			msg = notify(args, tok, chat_id)
 		else:
 			msg = "Unknown instruction: {}".format(args[1])
 	else:

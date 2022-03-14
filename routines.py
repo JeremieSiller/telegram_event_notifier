@@ -72,7 +72,7 @@ def events(update: Update, context: CallbackContext):
 		not_authenticated(context, update.effective.chat_id)
 		return
 	if (len(context.args) >= 1):
-		msg = event_inspector.event_args(context.args, tok)
+		msg = event_inspector.event_args(context.args, tok, update.effective_chat.id)
 	else:
 		response = requests.get("https://api.intra.42.fr/v2/me", tok)
 		if (response.status_code != 200):

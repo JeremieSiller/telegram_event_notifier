@@ -56,5 +56,17 @@ try:
 	cur = con.cursor()
 	cur.execute('''CREATE TABLE IF NOT EXISTS tokens(access_token text, token_type text, expires_in int, refresh_token text, created_at int, expires_at double, chat_id int PRIMARY KEY)''')
 	con.commit()
+	con.close()
 except:
 	print("Error\nCould not create token-database")
+	exit(1)
+
+try:
+	con = sqlite3.connect('notifications.db')
+	cur = con.cursor()
+	cur.execute('''CREATE TABLE IF NOT EXISTS notifications(chat_id INT, notification_time timestamp, event_id INT, event_start_time timestamp, event_name TEXT, seconds_till INT)''')
+	con.commit()
+	con.close()
+except:
+	print("Error\nCould not create-notfication-database")
+	exit(1)

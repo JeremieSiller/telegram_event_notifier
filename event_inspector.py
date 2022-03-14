@@ -51,6 +51,11 @@ def notify(args, tok, chat_id):
 
 def event_args(args, tok, chat_id):
 	if len(args) == 1:
+		try:
+			num = int(args[0])
+		except:
+			msg = "Error {} is not a valid int".format(args[0])
+			return msg
 		response = requests.get("https://api.intra.42.fr/v2/events/{}".format(args[0]), tok)
 		if response.status_code != 200:
 			msg = "Sorry could not request the event\nthis could be because you are trying to access an event you are not authorized to or because the api is down. If none of that is the case, please report the issue to jsiller\n"
@@ -61,10 +66,10 @@ def event_args(args, tok, chat_id):
 			msg += "\nLocation: {}\n".format(json['location'])
 			msg += "\nBegins at: {}\n".format(json['begin_at'])
 			msg += "\nDuration in hours: {}\n".format(caluclate_duration(json['begin_at'], json['end_at']))
-			msg += "\nDo you want to get notified 30 minutes before the event?\n\t\trun \"/events {} N30\" -- not working (yet)\n".format(args[0])
+			msg += "\nDo you want to get notified 30 minutes before the event?\n\t\trun \"/events {} N30\"\n".format(args[0])
 			msg += "\t\tyou can change the time to any time betweeen 1 and 4320\n"
 			msg += "\t\tto get notified one day before the event use 1440\n"
-			msg += "\nDo you want to subscribe to the event?\n\t\trun \"/events {} S\" -- not working (yet)\n".format(args[0])
+			# msg += "\nDo you want to subscribe to the event?\n\t\trun \"/events {} S\" -- not working (yet)\n".format(args[0])
 			msg += "\nDo you want to add the event to your calender?\n\t\trun \"/events {} C\"\n".format(args[0])
 	elif len(args) == 2:
 		if args[1] == 'S':

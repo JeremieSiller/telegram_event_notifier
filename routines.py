@@ -65,7 +65,7 @@ def getuser(update: Update, context: CallbackContext):
 	context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 def help(update: Update, context: CallbackContext):
-	msg =	"/help - get a list of commands\n/start - get started\n/username - get your intra name\n/events - get a list of upcoming events"
+	msg =	"/help - get a list of commands\n/start - get started\n/username - get your intra name\n/events - get a list of upcoming events\n/notifications manage your notifications"
 	context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 def events(update: Update, context: CallbackContext):

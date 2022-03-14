@@ -35,7 +35,7 @@ def notifty(context: CallbackContext):
 	cur = con.cursor()
 	now = datetime.datetime.now()
 	now = pytz.UTC.localize(now)
-	cur.execute('''SELECT * FROM notifications WHERE notification_time > ?''', (now, ))
+	cur.execute('''SELECT * FROM notifications WHERE notification_time < ?''', (now, ))
 	rows = cur.fetchall()
 	for x in rows:
 		print(type(x))
@@ -44,6 +44,6 @@ def notifty(context: CallbackContext):
 			.format(name=x[4],event_id=x[2], minutes=(int(x[5])))
 		context.bot.send_message(chat_id=x[0], text=msg)
 		print(msg)
-	cur.execute('''DELETE FROM notifications WHERE notification_time > ?''', (now, ))
+	cur.execute('''DELETE FROM notifications WHERE notification_time < ?''', (now, ))
 	con.commit()
 	notifydb.close_database(con)

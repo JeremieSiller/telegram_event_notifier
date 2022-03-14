@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+METHOD:PUBLISH
+BEGIN:VEVENT
+SUMMARY:Community Meeting 
+DTSTART;TZID=UTC;VALUE=DATE-TIME:20220425T150000Z
+DTEND;TZID=UTC;VALUE=DATE-TIME:20220425T153000Z
+DESCRIPTION:Join us for relevant announcements from the bocal: https://mee
+ t.google.com/thp-ahgg-wyh
+DSTAMP:2022-04-25 15:30:00+00:00
+LOCATION:https://meet.google.com/thp-ahgg-wyh
+END:VEVENT
+END:VCALENDAR

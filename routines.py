@@ -1,9 +1,11 @@
 from distutils.log import fatal
 from turtle import update
+from xml.dom.minidom import Document
 from telegram import Update
 from telegram.ext import CallbackContext
 from telegram.ext import CommandHandler
 import requests
+from icalendar import Calendar
 from authenticate import authenticate, refresh_token
 import database
 import consts as c
@@ -57,7 +59,7 @@ def getuser(update: Update, context: CallbackContext):
 		not_authenticated(context, update.effective.chat_id)
 		return
 	response = requests.get("https://api.intra.42.fr/v2/me", tok)
-	msg = response.json()['id']
+	msg = response.json()['login']
 	context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 def help(update: Update, context: CallbackContext):
@@ -91,7 +93,9 @@ def events(update: Update, context: CallbackContext):
 				ev[s] = events
 				# msg = msg + events['name'] +'\n'
 		for key in sorted(ev):
-			print(key)
 			msg += ev[key]['name'] + ' at: ' + ev[key]['begin_at'] + ' id: ' + str(ev[key]['id']) + '\n'
 		msg += '\n' + "If you want to run more actions on a specific event (subsrice, get notified...)\ntext me with /events EVENT_ID. e.g. /events 8"
-	context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+	if type(msg) == type(Calendar()):
+		context.bot.send_document(chat_id=update.effective_chat.id, document=msg.to_ical(), filename="event.ics")
+	else:
+		context.bot.send_message(chat_id=update.effective_chat.id, text=msg)

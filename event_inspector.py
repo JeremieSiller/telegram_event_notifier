@@ -2,41 +2,43 @@ import consts as c
 import requests
 import dateutil.parser as dp
 import datetime
+from icalendar import Calendar, Event
+import pytz
+from dateutil import parser
 
 #not correct when event is for more than a day
 def caluclate_duration(begins_at, ends_at):
 	p_b = dp.parse(begins_at)
 	p_e = dp.parse(ends_at)
-	print(p_b)
-	print(p_e)
 	s_b = p_b.time()
 	s_e = p_e.time()
 	today = datetime.date.today()
 	d_start = datetime.datetime.combine(today, s_b)
 	d_end = datetime.datetime.combine(today, s_e)
-	print(d_start)
-	print(d_end)
 	return ( d_end - d_start )
+
+#parses JSON time to datetime
+def getdatetime(datestring):
+	return parser.parse(datestring)
+
 
 def event_args(args, tok):
 	if len(args) == 1:
 		response = requests.get("https://api.intra.42.fr/v2/events/{}".format(args[0]), tok)
 		if response.status_code != 200:
-			msg = "Sorry could not request the event\nthis could be because you are trying to access an event you are not authorized to or because\the api is down. If none of that is the case, please report the issue to jsiller\n"
+			msg = "Sorry could not request the event\nthis could be because you are trying to access an event you are not authorized to or because the api is down. If none of that is the case, please report the issue to jsiller\n"
 		else:
 			json = response.json()
 			msg = "You accessed the event {name} with the id {id}\n".format(name=json['name'], id=json['id'])
 			msg += "\nDescription: {}\n".format(json['description'])
-			print(json['begin_at'])
-			print(json['end_at'])
 			msg += "\nLocation: {}\n".format(json['location'])
 			msg += "\nBegins at: {}\n".format(json['begin_at'])
 			msg += "\nDuration in hours: {}\n".format(caluclate_duration(json['begin_at'], json['end_at']))
-			msg += "\nDo you want to get notified 30 minutes before the event?\n\t\trun \"/events {} N30\"\n".format(args[0])
+			msg += "\nDo you want to get notified 30 minutes before the event?\n\t\trun \"/events {} N30\" -- not working (yet)\n".format(args[0])
 			msg += "\t\tyou can change the time to any time betweeen 1 and 4320\n"
 			msg += "\t\tto get notified one day before the event use 1440\n"
-			msg += "\nDo you want to subscribe to the event?\n\t\trun \"/events {} S\"\n".format(args[0])
-			msg += "\nDo you want add the event to your calender?\n\t\trun \"/events {} C\"\n".format(args[0])
+			msg += "\nDo you want to subscribe to the event?\n\t\trun \"/events {} S\" -- not working (yet)\n".format(args[0])
+			msg += "\nDo you want to add the event to your calender?\n\t\trun \"/events {} C\"\n".format(args[0])
 	elif len(args) == 2:
 		if args[1] == 'S':
 			# print("DEBUG")
@@ -56,9 +58,25 @@ def event_args(args, tok):
 			# print(response.json())
 			return "this bot has no authorization to do this... :("
 		elif args[1] == 'C':
-			msg = "Calendly is not implemented yet"
+			response = requests.get("https://api.intra.42.fr/v2/events/{}".format(args[0]), tok)
+			if response.status_code != 200:
+				msg = "Sorry could not request the event\nthis could be because you are trying to access an event you are not authorized to or because\the api is down. If none of that is the case, please report the issue to jsiller\n"
+			json = response.json()
+			cal = Calendar()
+			event = Event()
+			cal.add('method', 'PUBLISH')
+			event.add('summary', json['name'])
+			event.add('description', json['description'])
+			event.add('location', json['location'])
+			event.add('dtstart', getdatetime(json['begin_at']))
+			event.add('dtend', getdatetime(json['end_at']))
+			event.add('dstamp', getdatetime(json['end_at']))
+			cal.add_component(event)
+			return cal
 		elif args[1][0] == 'N':
 			msg = "Notifications are not implemented yet\n"
-	elif len(args) >= 2:
-		msg = "/events takes max. 2 arguements run /events EVENT_ID to get infors about a specific event"
+		else:
+			msg = "Unknown instruction: {}".format(args[1])
+	else:
+		msg = "/events takes max. 2 arguements run /events EVENT_ID to get information about a specific event"
 	return msg

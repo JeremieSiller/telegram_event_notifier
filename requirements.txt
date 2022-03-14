@@ -4,3 +4,5 @@ python-dotenv
 oauthlib
 requests
 requests-oauthlib
+python-dateutil
+icalendar

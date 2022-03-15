@@ -1,4 +1,3 @@
-from pickle import TRUE
 import consts as c
 from telegram.ext import Updater
 from telegram.ext import CommandHandler

@@ -9,7 +9,7 @@ WORKDIR /project
 # Install dependencies:
 COPY requirements.txt .
 RUN pip install -r requirements.txt
+COPY ./src .
 
 # Run the application:
-COPY test.py .
-CMD ["python", "test.py"]
+CMD ["python", "./run.py"]

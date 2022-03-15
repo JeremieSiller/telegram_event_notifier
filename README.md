@@ -2,6 +2,8 @@
 
 A telegram bot which lets you setup notifications for the 42 intra-events
 
+You can access a running bot here: https://t.me/fourtytwo_events_bot
+
 ## Table of contents
 1. [About](#about)
 2. [Requirements](#requirements)

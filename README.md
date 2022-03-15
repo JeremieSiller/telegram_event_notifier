@@ -60,4 +60,17 @@ docker-compose up
 
 ## Goals
 
+As I have already mentioned, I want to restructure the project. The goal is to use classes and smaller functions to make the code more modular and easier adjustable. For now I am also saving all authentication tokens and refresh them about every 20 minutes in a database. I realized that this is not necessary, because I changed my approach during the project. Part of the restructure would be to get rid of the database and just safe them in the temporary storage of the programm.
+
+**future features:**
+- logout possibilty
+- easier setup of notifications -> 'clickable' - commands without arguements
+- give updates when new events occur on the intra - (maybe even if some are removed)
+- sign up for events - app needs higher roles that can only be given by bocal
+
+As the goal of this bot was to get notifications on intra-events the *future features* have priority
+and the following could be implemented at some point:
+- evaluation notification
+- other api-requests like blackhole-days
+
 [bot-father]:https://t.me/BotFather

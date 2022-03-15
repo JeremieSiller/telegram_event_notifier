@@ -1,9 +1,10 @@
 import sqlite3
 from requests_oauthlib import OAuth2Session
 import oauthlib
+import consts as c
 
 def open_database():
-	con = sqlite3.connect('tokens.db')
+	con = sqlite3.connect(c.db_token_path)
 	return con
 
 def close_database(con):

@@ -1,0 +1,29 @@
+volumes:
+  databases:
+    name: databases
+    driver: local
+    driver_opts:
+            device: $PWD/databases
+            o: bind
+            type: none
+
+services:
+  redir:
+    build: ./redir
+    image: redir
+    ports:
+      - "80:80"
+    restart: always
+  bot:
+    depends_on:
+      - redir
+    build: ./bot
+    volumes:
+      - databases:/project/databases
+    restart: always
+    environment:
+      - UID=$UID
+      - SECRET=$SECRET
+      - REDIRECT_LINK=$REDIRECT_LINK
+      - AUTH_LINK=$AUTH_LINK
+      - TOKEN=$TOKEN

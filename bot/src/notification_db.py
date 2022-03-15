@@ -1,7 +1,8 @@
 import sqlite3
+import consts as c
 
 def open_database():
-	con = sqlite3.connect('notifications.db')
+	con = sqlite3.connect(c.db_notify_path)
 	return con
 
 def close_database(con):

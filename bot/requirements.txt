@@ -1,6 +1,5 @@
 numpy
 python-telegram-bot
-python-dotenv
 oauthlib
 requests
 requests-oauthlib

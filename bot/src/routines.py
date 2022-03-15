@@ -15,6 +15,10 @@ import dateutil.parser as dp
 import time
 import event_inspector
 import notification_db as notifydb
+import sys
+
+def eprint(*args, **kwargs):
+	print(*args, file=sys.stderr, **kwargs)
 
 def not_authenticated(context, chat_id):
 	msg = "You are not authenticated, please run /start to get started"
@@ -27,11 +31,11 @@ def invalid_request(context, chat_id):
 def start(update: Update, context: CallbackContext):
 	tmp = database.find_token(update.effective_chat.id)
 	if (len(context.args) == 1):
-		msg = "your code is: {}".format(context.args[0])
 		tmp = authenticate(context.args[0])
 		if (tmp == -1):
 			msg = "Error authentication failed, please try again later"
 		else:
+			msg = "Successfully authenticated!\nTo check if everything worked fine run /username\nOr run /help for a list of commands"
 			database.insert_token(tmp, update.effective_chat.id)
 	else:
 		if tmp == -1:
@@ -71,7 +75,7 @@ def help(update: Update, context: CallbackContext):
 def events(update: Update, context: CallbackContext):
 	tok = database.find_token(update.effective_chat.id)
 	if tok == -1 or helper.is_token_expired(tok) == 1:
-		not_authenticated(context, update.effective.chat_id)
+		not_authenticated(context, update.effective_chat.id)
 		return
 	if (len(context.args) >= 1):
 		msg = event_inspector.event_args(context.args, tok, update.effective_chat.id)
@@ -85,7 +89,7 @@ def events(update: Update, context: CallbackContext):
 		if (response.status_code != 200):
 			invalid_request(context, update.effective.chat_id)
 			return
-		msg = "there are following events comming up at your campus: \n"
+		msg = "there are following events coming up at your campus: \n"
 		js = response.json()
 		ev = {}
 		for events in js:
@@ -93,14 +97,16 @@ def events(update: Update, context: CallbackContext):
 			s = p.timestamp()
 			if time.time() < s:
 				ev[s] = events
-				# msg = msg + events['name'] +'\n'
+		i = 1
 		for key in sorted(ev):
-			msg += ev[key]['name'] + ' at: ' + ev[key]['begin_at'] + ' id: ' + str(ev[key]['id']) + '\n'
-		msg += '\n' + "If you want to run more actions on a specific event (subsrice, get notified...)\ntext me with /events EVENT_ID. e.g. /events 8"
+			msg += '\n' + str(i) + '. <b>' + ev[key]['name'] + '</b>\nat: ' + ev[key]['begin_at'] + ' id: <b>' + str(ev[key]['id']) + '</b>\n'
+			i += 1
+
+		msg += '\n' + "If you want to run more actions on a specific event, text me with /events EVENT_ID. e.g. /events 9125"
 	if type(msg) == type(Calendar()):
 		context.bot.send_document(chat_id=update.effective_chat.id, document=msg.to_ical(), filename="event.ics")
 	else:
-		context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+		context.bot.send_message(chat_id=update.effective_chat.id, text=msg, parse_mode='HTML')
 
 def delete_notification(cur, args, chat_id):
 	if (len(args) != 2):

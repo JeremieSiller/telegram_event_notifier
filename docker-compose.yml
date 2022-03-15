@@ -1,6 +1,6 @@
+version: '3'
 volumes:
   databases:
-    name: databases
     driver: local
     driver_opts:
             device: $PWD/databases

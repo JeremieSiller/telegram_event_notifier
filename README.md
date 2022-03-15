@@ -62,7 +62,7 @@ docker-compose up
 
 ## Goals
 
-As I have already mentioned, I want to restructure the project. The goal is to use classes and smaller functions to make the code more modular and easier adjustable. For now I am also saving all authentication tokens and refresh them about every 20 minutes in a database. I realized that this is not necessary, because I changed my approach during the project. Part of the restructure would be to get rid of the database and just safe them in the temporary storage of the programm.
+As I have already mentioned, I want to restructure the project. The goal is to use classes and smaller functions to make the code more modular and easier adjustable. For now I am also saving all authentication tokens and refresh them about every 20 minutes in a database. I realized that this is not necessary, because I changed my approach during the project. Part of the restructure would be to get rid of the database and just safe the tokens in the temporary storage of the programm.
 
 **future features:**
 - logout possibilty

@@ -58,7 +58,7 @@ def msg(update: Update, context: CallbackContext):
 def getuser(update: Update, context: CallbackContext):
 	tok = database.find_token(update.effective_chat.id)
 	if tok == -1 or helper.is_token_expired(tok) == 1:
-		not_authenticated(context, update.effective.chat_id)
+		not_authenticated(context, update.effective_chat.id)
 		return
 	response = requests.get("https://api.intra.42.fr/v2/me", tok)
 	msg = response.json()['login']
